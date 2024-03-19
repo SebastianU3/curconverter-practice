@@ -1,23 +1,61 @@
-import logo from './logo.svg';
-import './App.css';
+// `https://api.frankfurter.app/latest?amount=100&from=EUR&to=USD`
+
+import { useEffect, useState } from "react";
 
 function App() {
+  const [money, setMoney] = useState(0);
+  const [cur1, setCur1] = useState("USD");
+  const [cur2, setCur2] = useState("USD");
+  const [output, setOutput] = useState(0);
+
+  function handleMoney(money) {
+    setMoney(money);
+  }
+
+  function handleCurrency1(currency) {
+    setCur1(currency);
+  }
+
+  function handleCurrency2(currency) {
+    setCur2(currency);
+  }
+
+  useEffect(
+    function () {
+      async function fetchCurrency() {
+        const res = await fetch(
+          `https://api.frankfurter.app/latest?amount=${money}&from=${cur1}&to=${cur2}`
+        );
+        const data = await res.json();
+        setOutput(data.rates[cur2]);
+      }
+      if (cur1 !== cur2 && money !== 0) {
+        fetchCurrency();
+      }
+    },
+    [money, cur1, cur2]
+  );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <input
+        type="text"
+        onChange={(e) => handleMoney(Number(e.target.value))}
+        value={money}
+      />
+      <select onChange={(e) => handleCurrency1(e.target.value)}>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="CAD">CAD</option>
+        <option value="INR">INR</option>
+      </select>
+      <select onChange={(e) => handleCurrency2(e.target.value)}>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="CAD">CAD</option>
+        <option value="INR">INR</option>
+      </select>
+      <p>{cur1 === cur2 ? money : output} {cur2}</p>
     </div>
   );
 }
